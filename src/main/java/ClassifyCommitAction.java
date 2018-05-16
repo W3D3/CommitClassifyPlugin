@@ -72,7 +72,7 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
 
     public void actionPerformed(AnActionEvent e) {
         project = e.getProject();
-        this.vcsManager = ProjectLevelVcsManager.getInstance(project);
+        this.vcsManager = ProjectLevelVcsManager.getInstance(project); //TODO maybe someday use this?
         this.changedContent = new ArrayList<>();
 
         checkinPanel = (CheckinProjectPanel) getCheckinPanel(e);
@@ -104,11 +104,10 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
             body.setMatcher(5); //TODO settings window!
             body.setData(changedContent);
 
-            String postUrl = "http://localhost:8080/v1/changes/msg";// put in your url
             Gson gson = new Gson();
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(postUrl);
-            StringEntity postingString = null;//gson.tojson() converts your pojo to json
+            HttpPost post = new HttpPost(URL);
+            StringEntity postingString = null;
             try {
                 postingString = new StringEntity(gson.toJson(body));
             } catch (UnsupportedEncodingException e) {
@@ -119,8 +118,6 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
             try {
                 HttpResponse response = httpClient.execute(post);
                 return IOUtils.toString(response.getEntity().getContent());
-
-                //return response.getEntity().getContent().;
             } catch (IOException e) {
                 e.printStackTrace();
             }
