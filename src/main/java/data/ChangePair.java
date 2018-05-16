@@ -1,9 +1,13 @@
 package data;
 
+import org.apache.commons.net.util.Base64;
+
+import java.nio.charset.StandardCharsets;
+
 public class ChangePair {
     String filename;
-    String src;
-    String dst;
+    private String src;
+    private String dst;
 
     public ChangePair(String filename, String src, String dst) {
         this.filename = filename;
@@ -38,5 +42,10 @@ public class ChangePair {
 
     public void setDst(String dst) {
         this.dst = dst;
+    }
+
+    public void convertToBase64() {
+        this.src = new String(Base64.encodeBase64(src.getBytes()), StandardCharsets.UTF_8);
+        this.dst = new String(Base64.encodeBase64(dst.getBytes()), StandardCharsets.UTF_8);
     }
 }

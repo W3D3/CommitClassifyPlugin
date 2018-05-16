@@ -34,6 +34,7 @@ import com.intellij.openapi.vcs.ui.Refreshable;
 import data.ChangePair;
 import data.ChangesRequestBody;
 import javafx.util.Pair;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -56,7 +57,7 @@ import java.util.stream.Stream;
 /**
  * @author darekkay
  */
-public class WhatTheCommitAction extends AnAction implements DumbAware {
+public class ClassifyCommitAction extends AnAction implements DumbAware {
 
     private static final String URL = "http://whatthecommit.com/index.txt";
     private static final int TIMEOUT_SECONDS = 5;
@@ -66,14 +67,14 @@ public class WhatTheCommitAction extends AnAction implements DumbAware {
     private Stream<Change> changeStream;
     private List<ChangePair> changedContent;
 
-    public WhatTheCommitAction() {
-        this.changedContent = new ArrayList<>();
+    public ClassifyCommitAction() {
+
     }
 
     public void actionPerformed(AnActionEvent e) {
         project = e.getProject();
         this.vcsManager = ProjectLevelVcsManager.getInstance(project);
-
+        this.changedContent = new ArrayList<>();
 
         checkinPanel = (CheckinProjectPanel) getCheckinPanel(e);
         if (checkinPanel == null)
@@ -83,12 +84,13 @@ public class WhatTheCommitAction extends AnAction implements DumbAware {
         changeStream = checkinPanel.getSelectedChanges().stream();
         changeStream.forEach(change -> {
             try {
-                changedContent.add(new ChangePair(change.getVirtualFile().getName(), change.getBeforeRevision().getContent(), change.getAfterRevision().getContent()));
+                ChangePair pair = new ChangePair(change.getVirtualFile().getName(), change.getBeforeRevision().getContent(), change.getAfterRevision().getContent());
+                pair.convertToBase64();
+                changedContent.add(pair);
             } catch (VcsException e1) {
                 e1.printStackTrace();
             }
         });
-
 
         String commitMessage = loadCommitMessage();
         if (!commitMessage.isEmpty()) {
@@ -114,7 +116,7 @@ public class WhatTheCommitAction extends AnAction implements DumbAware {
                 body.setMatcher(5);
                 body.setData(changedContent);
 
-                String postUrl = "https://localhost/changes/msg";// put in your url
+                String postUrl = "http://localhost:8080/v1/changes/msg";// put in your url
                 Gson gson = new Gson();
                 CloseableHttpClient httpClient = HttpClientBuilder.create().build();
                 HttpPost post = new HttpPost(postUrl);
@@ -128,7 +130,9 @@ public class WhatTheCommitAction extends AnAction implements DumbAware {
                 post.setHeader("Content-type", "application/json");
                 try {
                     HttpResponse response = httpClient.execute(post);
-                    return response.toString();
+                    return IOUtils.toString(response.getEntity().getContent());
+
+                    //return response.getEntity().getContent().;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

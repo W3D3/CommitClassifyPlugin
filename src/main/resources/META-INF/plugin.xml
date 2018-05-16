@@ -19,7 +19,7 @@
     </extensions>
 
     <actions>
-        <action id="WhatTheCommit.Button" class="WhatTheCommitAction"
+        <action id="WhatTheCommit.Button" class="ClassifyCommitAction"
                 text="What The Commit"
                 description="Load random message" icon="/load.png">
             <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
