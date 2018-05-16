@@ -33,7 +33,6 @@ import com.intellij.openapi.vcs.changes.ContentRevision;
 import com.intellij.openapi.vcs.ui.Refreshable;
 import data.ChangePair;
 import data.ChangesRequestBody;
-import javafx.util.Pair;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -43,12 +42,12 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.jetbrains.annotations.Nullable;
 import utils.Notification;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -99,45 +98,32 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
     }
 
     public String loadCommitMessage() {
-        final FutureTask<String> downloadTask = new FutureTask<String>(new Callable<String>() {
-            public String call() {
-//                final HttpClient client = new HttpClient();
-////                final PostMethod postMethod = new PostMethod(url);
-////
-////                try {
-////                    final int statusCode = client.executeMethod(postMethod);
-////                    if (statusCode != HttpStatus.SC_OK)
-////                        throw new RuntimeException("Connection error (HTTP status = " + statusCode + ")");
-////                    return getMethod.getResponseBodyAsString();
-////                } catch (IOException e) {
-////                    throw new RuntimeException(e.getMessage(), e);
-////                }
-                ChangesRequestBody body = new ChangesRequestBody();
-                body.setMatcher(5);
-                body.setData(changedContent);
+        final FutureTask<String> downloadTask = new FutureTask<String>(() -> {
+            ChangesRequestBody body = new ChangesRequestBody();
+            body.setMatcher(5); //TODO settings window!
+            body.setData(changedContent);
 
-                String postUrl = "http://localhost:8080/v1/changes/msg";// put in your url
-                Gson gson = new Gson();
-                CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-                HttpPost post = new HttpPost(postUrl);
-                StringEntity postingString = null;//gson.tojson() converts your pojo to json
-                try {
-                    postingString = new StringEntity(gson.toJson(body));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                post.setEntity(postingString);
-                post.setHeader("Content-type", "application/json");
-                try {
-                    HttpResponse response = httpClient.execute(post);
-                    return IOUtils.toString(response.getEntity().getContent());
-
-                    //return response.getEntity().getContent().;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return "";
+            String postUrl = "http://localhost:8080/v1/changes/msg";// put in your url
+            Gson gson = new Gson();
+            CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+            HttpPost post = new HttpPost(postUrl);
+            StringEntity postingString = null;//gson.tojson() converts your pojo to json
+            try {
+                postingString = new StringEntity(gson.toJson(body));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
+            post.setEntity(postingString);
+            post.setHeader("Content-type", "application/json");
+            try {
+                HttpResponse response = httpClient.execute(post);
+                return IOUtils.toString(response.getEntity().getContent());
+
+                //return response.getEntity().getContent().;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return "";
         });
 
         ApplicationManager.getApplication().executeOnPooledThread(downloadTask);
