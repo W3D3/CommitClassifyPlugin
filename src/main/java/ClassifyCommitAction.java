@@ -58,7 +58,7 @@ import java.util.stream.Stream;
  */
 public class ClassifyCommitAction extends AnAction implements DumbAware {
 
-    private static final String URL = "http://whatthecommit.com/index.txt";
+    private static final String URL = "http://localhost:8080/v1/changes/msg";
     private static final int TIMEOUT_SECONDS = 5;
     private Project project;
     private ProjectLevelVcsManager vcsManager;
@@ -81,6 +81,7 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
 
         getChanges();
         changeStream = checkinPanel.getSelectedChanges().stream();
+
         changeStream.forEach(change -> {
             try {
                 ChangePair pair = new ChangePair(change.getVirtualFile().getName(), change.getBeforeRevision().getContent(), change.getAfterRevision().getContent());
@@ -128,18 +129,12 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
 
         ApplicationManager.getApplication().executeOnPooledThread(downloadTask);
 
-        VcsRoot[] roots = vcsManager.getAllVcsRoots();
-        for (VcsRoot root : roots) {
-            Notification.notify("Found root", root.toString());
-        }
-
-
-
         try {
             return downloadTask.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             // ignore
         } catch (Exception e) {
+            Notification.notify("Network error", "Could not fetch commit message, are you online?");
             throw new RuntimeException(e.getMessage(), e);
         }
 

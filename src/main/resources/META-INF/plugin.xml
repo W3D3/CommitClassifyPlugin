@@ -1,7 +1,7 @@
 <idea-plugin>
-    <id>org.wedenig.my-plugin</id>
-    <name>Plugin display name here</name>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <id>at.aau.commitclassifier</id>
+    <name>ClassifyCommit</name>
+    <vendor email="christoph.wedenig@aau.at" url="https://www.aau.at/isys/">ISYS</vendor>
 
     <description><![CDATA[
     Enter short description for your plugin here.<br>
@@ -19,9 +19,9 @@
     </extensions>
 
     <actions>
-        <action id="WhatTheCommit.Button" class="ClassifyCommitAction"
-                text="What The Commit"
-                description="Load random message" icon="/load.png">
+        <action id="ClassifyCommit.Button" class="ClassifyCommitAction"
+                text="Classify Commit"
+                description="Sends changes to DiffWS and generates Commit Message" icon="/load.png">
             <add-to-group group-id="Vcs.MessageActionGroup" anchor="first"/>
         </action>
     </actions>
