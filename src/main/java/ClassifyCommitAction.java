@@ -100,6 +100,7 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
         String commitMessage = loadCommitMessage();
         if (!commitMessage.isEmpty()) {
             checkinPanel.setCommitMessage(commitMessage);
+            Notification.notify("Success", "Generated commit message summary.");
         }
     }
 

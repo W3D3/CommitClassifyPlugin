@@ -5,6 +5,8 @@ public class Matcher {
     public String name;
 
     public Matcher() {
+        this.id = -1;
+        this.name = "";
     }
 
     public int getId() {
@@ -26,5 +28,11 @@ public class Matcher {
     @Override
     public String toString() {
         return this.getName();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Matcher)) return false;
+        return this.getId() == ((Matcher) obj).getId() && this.getName().equals(((Matcher) obj).getName());
     }
 }

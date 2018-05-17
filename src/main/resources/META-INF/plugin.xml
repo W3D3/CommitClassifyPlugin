@@ -17,7 +17,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <!--<applicationConfigurable groupId="tools" instance="settings.ClassifyCommitConfigurable"/>-->
-        <projectConfigurable groupId="version control" displayName="Classify Commits"
+        <projectConfigurable groupId="tools" displayName="Classify Commit Plugin"
                              instance="settings.ClassifyCommitConfigurable"/>
         <projectService serviceInterface="settings.CommitClassifyConfig"
                         serviceImplementation="settings.CommitClassifyConfig"/>

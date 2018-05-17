@@ -46,8 +46,8 @@ public class SettingsGUI {
     public boolean isModified() {
         boolean modified = false;
         modified |= !textFieldEndpoint.getText().equals(classifyConfig.getEndpointURL());
-        if (comboBoxDiffer.getSelectedItem() == null)
-            modified |= !(((Matcher) comboBoxDiffer.getSelectedItem()).getId() == classifyConfig.getDifferID());
+        if (!(comboBoxDiffer.getSelectedItem() == null))
+            modified |= !(classifyConfig.getDiffer().equals(comboBoxDiffer.getSelectedItem()));
         return modified;
     }
 

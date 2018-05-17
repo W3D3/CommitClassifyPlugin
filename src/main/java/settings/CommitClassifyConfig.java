@@ -10,6 +10,7 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.codeStyle.extractor.differ.Differ;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import data.Matcher;
 import org.apache.commons.io.IOUtils;
@@ -37,7 +38,7 @@ import java.util.concurrent.TimeoutException;
 public class CommitClassifyConfig implements PersistentStateComponent<CommitClassifyConfig> {
 
     static final String DEFAULT_ENDPOINT = "http://localhost:8080/v1/changes/msg";
-    static final Matcher DEFAULT_DIFFER = null;
+    static final Matcher DEFAULT_DIFFER = new Matcher();
     public String endpointURL = DEFAULT_ENDPOINT;
     public Matcher differ = DEFAULT_DIFFER;
 
@@ -88,6 +89,9 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
             HttpGet get = new HttpGet(new URL(endpointNew, "matchers").toString());
             try {
                 HttpResponse response = httpClient.execute(get);
+                if(response.getStatusLine().getStatusCode() != 200) {
+                    Notification.notify("Network Error", response.getStatusLine().getReasonPhrase());
+                }
                 String rawJson = IOUtils.toString(response.getEntity().getContent());
                 JsonObject jsonObject = (JsonObject) new JsonParser().parse(rawJson);
 
@@ -109,7 +113,7 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
         } catch (TimeoutException e) {
             // ignore
         } catch (Exception e) {
-            Notification.notify("Network error", "Could not fetch commit message, are you online?");
+            Notification.notify("Fatal error", "Could not fetch commit message :(");
             throw new RuntimeException(e.getMessage(), e);
         }
 
