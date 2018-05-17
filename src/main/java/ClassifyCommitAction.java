@@ -40,10 +40,12 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jetbrains.annotations.Nullable;
+import settings.CommitClassifyConfig;
 import utils.Notification;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,13 +60,15 @@ import java.util.stream.Stream;
  */
 public class ClassifyCommitAction extends AnAction implements DumbAware {
 
-    private static final String URL = "http://localhost:8080/v1/changes/msg";
+    private static final String urlSuffix = "changes/msg";
     private static final int TIMEOUT_SECONDS = 5;
     private Project project;
     private ProjectLevelVcsManager vcsManager;
     private CheckinProjectPanel checkinPanel;
     private Stream<Change> changeStream;
     private List<ChangePair> changedContent;
+
+    private CommitClassifyConfig config;
 
     public ClassifyCommitAction() {
 
@@ -74,6 +78,7 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
         project = e.getProject();
         this.vcsManager = ProjectLevelVcsManager.getInstance(project); //TODO maybe someday use this?
         this.changedContent = new ArrayList<>();
+        this.config = CommitClassifyConfig.getInstance(project);
 
         checkinPanel = (CheckinProjectPanel) getCheckinPanel(e);
         if (checkinPanel == null)
@@ -99,14 +104,14 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
     }
 
     public String loadCommitMessage() {
-        final FutureTask<String> downloadTask = new FutureTask<String>(() -> {
+        final FutureTask<String> downloadTask = new FutureTask<>(() -> {
             ChangesRequestBody body = new ChangesRequestBody();
-            body.setMatcher(5); //TODO settings window!
+            body.setMatcher(this.config.getDifferID());
             body.setData(changedContent);
 
             Gson gson = new Gson();
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-            HttpPost post = new HttpPost(URL);
+            HttpPost post = new HttpPost(new URL(new URL(this.config.getEndpointURL()), urlSuffix).toString());
             StringEntity postingString = null;
             try {
                 postingString = new StringEntity(gson.toJson(body));
