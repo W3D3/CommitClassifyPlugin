@@ -4,8 +4,9 @@
     <vendor email="christoph.wedenig@aau.at" url="https://www.aau.at/isys/">ISYS</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    <b>ClassifyCommit</b> can automatically generate a commit message based on the changes made.<br>
+    The backend to classify needs to be specified per project.
+    <em>This plugin is not ready for prime time yet./em>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -16,7 +17,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <!--<applicationConfigurable groupId="tools" instance="settings.ClassifyCommitConfigurable"/>-->
         <projectConfigurable groupId="tools" displayName="Classify Commit Plugin"
                              instance="settings.ClassifyCommitConfigurable"/>
         <projectService serviceInterface="settings.CommitClassifyConfig"

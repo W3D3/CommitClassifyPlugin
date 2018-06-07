@@ -6,6 +6,7 @@ public class ChangesRequestBody {
 
     private int matcher;
     private List<ChangePair> data;
+    private int depth;
 
     public int getMatcher() {
         return matcher;
@@ -21,5 +22,13 @@ public class ChangesRequestBody {
 
     public void setData(List<ChangePair> data) {
         this.data = data;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
     }
 }

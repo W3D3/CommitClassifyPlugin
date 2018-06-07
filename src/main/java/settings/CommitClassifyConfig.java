@@ -10,7 +10,6 @@ import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.extractor.differ.Differ;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import data.Matcher;
 import org.apache.commons.io.IOUtils;
@@ -39,10 +38,18 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
 
     static final String DEFAULT_ENDPOINT = "http://localhost:8080/v1/changes/msg";
     static final Matcher DEFAULT_DIFFER = new Matcher();
+    static final Integer DEFAULT_DEPTH = 0;
     public String endpointURL = DEFAULT_ENDPOINT;
     public Matcher differ = DEFAULT_DIFFER;
+    public Integer depth = DEFAULT_DEPTH;
 
     public CommitClassifyConfig() {
+    }
+
+    @Nullable
+    public static CommitClassifyConfig getInstance(Project project) {
+        CommitClassifyConfig cfg = ServiceManager.getService(project, CommitClassifyConfig.class);
+        return cfg;
     }
 
     public String getEndpointURL() {
@@ -65,6 +72,14 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
         return differ.getId();
     }
 
+    public Integer getDepth() {
+        return depth;
+    }
+
+    public void setDepth(Integer depth) {
+        this.depth = depth;
+    }
+
     @Nullable
     @Override
     public CommitClassifyConfig getState() {
@@ -76,12 +91,6 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    @Nullable
-    public static CommitClassifyConfig getInstance(Project project) {
-        CommitClassifyConfig cfg = ServiceManager.getService(project, CommitClassifyConfig.class);
-        return cfg;
-    }
-
     public List<Matcher> loadDiffers(String url) {
         final FutureTask<List<Matcher>> downloadTask = new FutureTask<>(() -> {
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -89,7 +98,7 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
             HttpGet get = new HttpGet(new URL(endpointNew, "matchers").toString());
             try {
                 HttpResponse response = httpClient.execute(get);
-                if(response.getStatusLine().getStatusCode() != 200) {
+                if (response.getStatusLine().getStatusCode() != 200) {
                     Notification.notify("Network Error", response.getStatusLine().getReasonPhrase());
                 }
                 String rawJson = IOUtils.toString(response.getEntity().getContent());

@@ -2,7 +2,6 @@ package utils;
 
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.ui.Messages;
 
 import javax.swing.*;
 
@@ -13,13 +12,16 @@ public class Notification {
      * @param title
      * @param message
      */
+    public static void notify(String title, String message, NotificationType type) {
+        SwingUtilities.invokeLater(() -> Notifications.Bus.notify(new com.intellij.notification.Notification("pra", title, message, type)));
+    }
+
     public static void notify(String title, String message) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                Notifications.Bus.notify(new com.intellij.notification.Notification("pra", title + ".", message + ".", NotificationType.INFORMATION));
-            }
-        });
+        notify(title, message, NotificationType.INFORMATION);
+    }
+
+    public static void notifyError(String title, String message) {
+        notify(title, message, NotificationType.ERROR);
     }
 
 }

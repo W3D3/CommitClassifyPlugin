@@ -43,7 +43,6 @@ import org.jetbrains.annotations.Nullable;
 import settings.CommitClassifyConfig;
 import utils.Notification;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -89,7 +88,10 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
 
         changeStream.forEach(change -> {
             try {
-                ChangePair pair = new ChangePair(change.getVirtualFile().getName(), change.getBeforeRevision().getContent(), change.getAfterRevision().getContent());
+                String src = change.getBeforeRevision() != null ? change.getBeforeRevision().getContent() : "";
+                String dst = change.getAfterRevision() != null ? change.getAfterRevision().getContent() : "";
+
+                ChangePair pair = new ChangePair(change.getVirtualFile().getName(), src, dst);
                 pair.convertToBase64();
                 changedContent.add(pair);
             } catch (VcsException e1) {
@@ -109,6 +111,7 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
             ChangesRequestBody body = new ChangesRequestBody();
             body.setMatcher(this.config.getDifferID());
             body.setData(changedContent);
+            body.setDepth(this.config.getDepth());
 
             Gson gson = new Gson();
             CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -124,7 +127,8 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
             try {
                 HttpResponse response = httpClient.execute(post);
                 return IOUtils.toString(response.getEntity().getContent());
-            } catch (IOException e) {
+            } catch (Exception e) {
+                Notification.notifyError("Network error", "Could not fetch commit message, are you online?");
                 e.printStackTrace();
             }
             return "";
@@ -137,12 +141,13 @@ public class ClassifyCommitAction extends AnAction implements DumbAware {
         } catch (TimeoutException e) {
             // ignore
         } catch (Exception e) {
-            Notification.notify("Network error", "Could not fetch commit message, are you online?");
+            Notification.notifyError("Network error", "Could not fetch commit message, are you online?");
             throw new RuntimeException(e.getMessage(), e);
         }
 
         if (!downloadTask.isDone()) {
             downloadTask.cancel(true);
+            Notification.notifyError("Network error", "Connection timed out.");
             throw new RuntimeException("Connection timed out");
         }
 
