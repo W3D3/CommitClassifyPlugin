@@ -13,14 +13,14 @@ import java.util.List;
 
 public class SettingsGUI {
     private JTextField textFieldEndpoint;
-    private JComboBox comboBoxDiffer;
+    private JComboBox<Matcher> comboBoxDiffer;
     private JButton buttonRefresh;
     private JPanel rootPanel;
     private JSlider sliderDepth;
 
     private CommitClassifyConfig classifyConfig;
 
-    public void createUI(Project project) {
+    void createUI(Project project) {
         classifyConfig = CommitClassifyConfig.getInstance(project);
         textFieldEndpoint.setText(classifyConfig.getEndpointURL());
         refreshDiffers();
@@ -44,7 +44,7 @@ public class SettingsGUI {
         }
     }
 
-    public boolean isModified() {
+    boolean isModified() {
         boolean modified = false;
         modified |= !textFieldEndpoint.getText().equals(classifyConfig.getEndpointURL());
         if (!(comboBoxDiffer.getSelectedItem() == null))
@@ -53,7 +53,7 @@ public class SettingsGUI {
         return modified;
     }
 
-    public void apply() throws ConfigurationException {
+    void apply() throws ConfigurationException {
         try {
             URL url = new URL(textFieldEndpoint.getText());
             url.toURI();
@@ -66,12 +66,12 @@ public class SettingsGUI {
         classifyConfig.setDepth(sliderDepth.getValue());
     }
 
-    public void reset() {
+    void reset() {
         textFieldEndpoint.setText(classifyConfig.endpointURL);
         sliderDepth.setValue(classifyConfig.getDepth());
     }
 
-    public JPanel getRootPanel() {
+    JPanel getRootPanel() {
         return rootPanel;
     }
 
@@ -79,7 +79,7 @@ public class SettingsGUI {
         return textFieldEndpoint;
     }
 
-    public JComboBox getComboBoxDiffer() {
+    public JComboBox<Matcher> getComboBoxDiffer() {
         return comboBoxDiffer;
     }
 }
