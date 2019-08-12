@@ -36,20 +36,20 @@ import java.util.concurrent.TimeoutException;
 )
 public class CommitClassifyConfig implements PersistentStateComponent<CommitClassifyConfig> {
 
-    static final String DEFAULT_ENDPOINT = "http://localhost:8080/v1/changes/msg";
-    static final Matcher DEFAULT_DIFFER = new Matcher();
-    static final Integer DEFAULT_DEPTH = 0;
-    public String endpointURL = DEFAULT_ENDPOINT;
-    public Matcher differ = DEFAULT_DIFFER;
-    public Integer depth = DEFAULT_DEPTH;
+    private static final String DEFAULT_ENDPOINT = "http://localhost:8080/v1/changes/msg";
+    private static final Matcher DEFAULT_DIFFER = new Matcher();
+    private static final Integer DEFAULT_DEPTH = 0;
+
+    String endpointURL = DEFAULT_ENDPOINT;
+    private Matcher differ = DEFAULT_DIFFER;
+    private Integer depth = DEFAULT_DEPTH;
 
     public CommitClassifyConfig() {
     }
 
     @Nullable
     public static CommitClassifyConfig getInstance(Project project) {
-        CommitClassifyConfig cfg = ServiceManager.getService(project, CommitClassifyConfig.class);
-        return cfg;
+        return ServiceManager.getService(project, CommitClassifyConfig.class);
     }
 
     public String getEndpointURL() {
@@ -106,8 +106,7 @@ public class CommitClassifyConfig implements PersistentStateComponent<CommitClas
 
                 Type listType = new TypeToken<ArrayList<Matcher>>() {
                 }.getType();
-                List<Matcher> list = new Gson().fromJson(jsonObject.getAsJsonArray("matchers").toString(), listType);
-                return list;
+                return new Gson().fromJson(jsonObject.getAsJsonArray("matchers").toString(), listType);
 
             } catch (IOException e) {
                 e.printStackTrace();

@@ -9,11 +9,11 @@ public class Notification {
 
     /**
      * Notify - Real IDE native Notifications
-     * @param title
-     * @param message
+     * @param title Title of notification
+     * @param message Message body of the notification
      */
     public static void notify(String title, String message, NotificationType type) {
-        SwingUtilities.invokeLater(() -> Notifications.Bus.notify(new com.intellij.notification.Notification("pra", title, message, type)));
+        SwingUtilities.invokeLater(() -> Notifications.Bus.notify(new com.intellij.notification.Notification("Commit Classifier", title, message, type)));
     }
 
     public static void notify(String title, String message) {
